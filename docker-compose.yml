@@ -1,0 +1,24 @@
+# Use postgres/example user/password credentials
+version: '3.9'
+
+services:
+  dbTaskDev:
+    image: postgres:17
+    restart: always
+    # set shared memory limit when using docker-cowmpose
+    shm_size: 128mb
+    ports:
+      - '5432:5432'
+    # or set shared memory limit when deploy via swarm stack
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128Mb
+    environment:
+      POSTGRES_DB: taskDevDB
+      POSTGRES_USER: ab4ch3
+      POSTGRES_PASSWORD: d4t4b453
+    container_name: Postgres-TaskDev
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
