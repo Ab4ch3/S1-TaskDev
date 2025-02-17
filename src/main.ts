@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import * as morgan from 'morgan';
@@ -9,6 +10,14 @@ async function bootstrap() {
 
   // Nos permite ver solucitudes a nuesto back-end
   app.use(morgan('dev'));
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
 
   // config services
   const configServices = app.get(ConfigService);
