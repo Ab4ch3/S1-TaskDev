@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ErrorManager } from 'src/common/error.manager';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -25,25 +26,45 @@ export class ProjectsService {
 
   public async findAll(): Promise<ProjectEntity[]> {
     try {
-      return await this.projectRepository.find();
+      const projects: ProjectEntity[] = await this.projectRepository.find();
+
+      if (projects.length === 0) {
+        throw new ErrorManager({
+          type: 'BAD_REQUEST',
+          message: 'No se encontro ningun resultado',
+        });
+      }
+
+      return projects;
     } catch (error) {
-      throw new Error(error);
+      // eslint-disable-next-line @typescript-eslint/only-throw-error, @typescript-eslint/no-unsafe-member-access
+      throw ErrorManager.createSignatureError(error.message);
     }
   }
 
-  public async findOne(id: number): Promise<ProjectEntity | null> {
+  public async findOne(id: string): Promise<ProjectEntity | null> {
     try {
-      return await this.projectRepository
+      const project = await this.projectRepository
         .createQueryBuilder('project')
         .where({ id })
         .getOne();
+
+      if (!project) {
+        throw new ErrorManager({
+          type: 'BAD_REQUEST',
+          message: 'No se encontro ningun projecto',
+        });
+      }
+
+      return project;
     } catch (error) {
-      throw new Error(error);
+      // eslint-disable-next-line @typescript-eslint/only-throw-error, @typescript-eslint/no-unsafe-member-access
+      throw ErrorManager.createSignatureError(error.message);
     }
   }
 
   public async update(
-    id: number,
+    id: string,
     updateProjectDto: UpdateProjectDto,
   ): Promise<UpdateResult | undefined> {
     try {
@@ -53,26 +74,34 @@ export class ProjectsService {
       );
 
       if (project.affected === 0) {
-        return undefined;
+        throw new ErrorManager({
+          type: 'BAD_REQUEST',
+          message: 'No se pudo actualizar ningun resultado',
+        });
       }
 
       return project;
     } catch (error) {
-      throw new Error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/only-throw-error
+      throw ErrorManager.createSignatureError(error.message);
     }
   }
 
-  public async delete(id: number): Promise<DeleteResult | undefined> {
+  public async delete(id: string): Promise<DeleteResult | undefined> {
     try {
       const project: DeleteResult = await this.projectRepository.delete(id);
 
       if (project.affected === 0) {
-        return undefined;
+        throw new ErrorManager({
+          type: 'BAD_REQUEST',
+          message: 'No se pudo eliminar ningun resultado',
+        });
       }
 
       return project;
     } catch (error) {
-      throw new Error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/only-throw-error
+      throw ErrorManager.createSignatureError(error.message);
     }
   }
 }
