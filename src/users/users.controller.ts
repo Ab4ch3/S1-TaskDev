@@ -8,6 +8,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { JoinToProjectDto } from './dto/join-to-project.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
@@ -18,6 +19,11 @@ export class UsersController {
   @Post()
   public async registerUser(@Body() createUserDto: CreateUserDto) {
     return await this.usersService.create(createUserDto);
+  }
+
+  @Post('join-to-project')
+  public async joinToProject(@Body() JoinToProjectDto: JoinToProjectDto) {
+    return await this.usersService.joinToProject(JoinToProjectDto);
   }
 
   @Get()

@@ -4,19 +4,30 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ErrorManager } from 'src/common/error.manager';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
+import { JoinToProjectDto } from './dto/join-to-project.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersEntity } from './entities/user.entity';
+import { UsersProjectsEntity } from './entities/usersProjects.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UsersEntity)
     private readonly userRepository: Repository<UsersEntity>,
+    private readonly userProjectRepository: Repository<UsersProjectsEntity>,
   ) {}
 
   public async create(CreateDataUser: CreateUserDto): Promise<UsersEntity> {
     try {
       return await this.userRepository.save(CreateDataUser);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  public async joinToProject(JoinToProjectDto: JoinToProjectDto) {
+    try {
+      return await this.userProjectRepository.save(JoinToProjectDto);
     } catch (error) {
       throw new Error(error);
     }
