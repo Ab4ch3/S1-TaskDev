@@ -14,6 +14,7 @@ export class UsersService {
   constructor(
     @InjectRepository(UsersEntity)
     private readonly userRepository: Repository<UsersEntity>,
+    @InjectRepository(UsersProjectsEntity)
     private readonly userProjectRepository: Repository<UsersProjectsEntity>,
   ) {}
 
@@ -55,6 +56,9 @@ export class UsersService {
       const user = await this.userRepository
         .createQueryBuilder('user')
         .where({ id })
+        .leftJoinAndSelect('user.projectIncludes', 'projectIncludes') // Se llama al key y al valor
+        // ya sabemos que tengo esta propiedad y obtenemos el nombre del projecto
+        .leftJoinAndSelect('projectIncludes.project', 'project')
         .getOne();
 
       if (!user) {
