@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 import { ErrorManager } from 'src/common/error.manager';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -20,6 +21,8 @@ export class UsersService {
 
   public async create(CreateDataUser: CreateUserDto): Promise<UsersEntity> {
     try {
+      CreateDataUser.password = await bcrypt.hash(CreateDataUser.password, 10);
+
       return await this.userRepository.save(CreateDataUser);
     } catch (error) {
       throw new Error(error);
