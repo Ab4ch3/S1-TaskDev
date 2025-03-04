@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -73,6 +72,21 @@ export class UsersService {
 
       return user;
     } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/only-throw-error
+      throw ErrorManager.createSignatureError(error.message);
+    }
+  }
+
+  public async findBy({ key, value }: { key: keyof UsersEntity; value: any }) {
+    try {
+      const user = await this.userRepository
+        .createQueryBuilder('user')
+        .addSelect('user.password')
+        .where({ [key]: value })
+        .getOne();
+
+      return user;
+    } catch (error: any) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/only-throw-error
       throw ErrorManager.createSignatureError(error.message);
     }

@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 import { ROLES } from '../../common/roles';
@@ -16,6 +17,8 @@ export class UsersEntity extends BaseEntity implements IUser {
   email: string;
   @Column({ unique: true })
   username: string;
+
+  @Exclude()
   @Column()
   password: string;
   @Column({ type: 'enum', enum: ROLES })
