@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UsersService) {}
+  constructor(
+    private readonly userService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
   async validateUser(username: string, password: string) {
     const userByUsername = await this.userService.findBy({
@@ -25,5 +29,22 @@ export class AuthService {
       if (match) return userByEmail;
     }
     return null;
+  }
+
+  async signIn(username: string, pass: string) {
+    const user = await this.validateUser(username, pass);
+
+    if (!user) throw new UnauthorizedException('Invalid Username or Password');
+
+    // Limpiamo la contrase#a del user
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...result } = user;
+
+    const payload = { sub: user.id, username: user.username };
+
+    return {
+      accessToken: await this.jwtService.signAsync(payload),
+      user: result,
+    };
   }
 }
